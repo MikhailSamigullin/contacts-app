@@ -48,6 +48,44 @@ class UserController {
         const token = generateJwt(req.user.id, req.user.email, req.user.role)
         return res.json({token})
     }
+
+    async getAll(req, res) {
+
+        try {
+          const users = await User.findAll();
+          return res.json(users);
+      } catch(e) {
+          console.log(e);
+      }
+      }
+
+      async updateOne(req, res, next) {
+        let {role} = req.body;
+        const {id} = req.params;
+        console.log(req.body);
+        console.log(id);
+        try {
+          const user = await User.update({
+            role
+          }, {
+            where: {id}
+          });
+          return res.json(user);
+        } catch(e) {
+          next(ApiError.badRequest(e.message));
+        }
+        
+      }
+
+      async deleteOne(req, res) {
+        const {id} = req.params;
+        await User.destroy(
+          {
+            where: {id}
+          }
+        )
+      }
 }
+
 
 module.exports = new UserController()

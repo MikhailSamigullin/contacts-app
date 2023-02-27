@@ -14,3 +14,14 @@ export const fetchOneClient = async (id: string | any) => {
     const {data} = await $host.get('api/client/' + id)
     return data
 }
+
+export const updateOneClient = async (client: any) => {
+    const formDataObj = Object.fromEntries(client.entries());
+    const {data} = await $host.put(`api/client/${formDataObj.id}`, client)
+    return data
+}
+
+export const deleteOneClient = async (id: string | any) => {
+    await $host.delete('api/client/' + id, id)
+    
+}

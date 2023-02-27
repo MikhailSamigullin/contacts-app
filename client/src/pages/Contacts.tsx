@@ -18,7 +18,7 @@ const Contacts = observer(() => {
   }, [client])
 // Must change limit in fetchClients and _limit in ClientStore both
   useEffect(() => {
-      fetchClients(client.page, 3).then(data => {
+      fetchClients(client.page, 1000).then(data => {
         client.setClients(data.rows)
         client.setTotalCount(data.count)
       })
@@ -27,15 +27,12 @@ const Contacts = observer(() => {
   const handleChange = (e: any) => {
     e.preventDefault();
     setSearch(e.target.value);
-
   };
-
   
   if (search.length > 0) {
     client.clients.filter((client: { name: string; }) => {
       return client.name.match(search);
   });
-
   }
 
   return (
@@ -61,8 +58,6 @@ const Contacts = observer(() => {
         <Pages/>
       </Col>
     </Container>
-  
-      
   );
 });
 
