@@ -1,91 +1,85 @@
-const ApiError = require('../error/apiError');
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const {User, Basket} = require('../models/models')
+const ApiError = require("../error/apiError");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { User, Basket } = require("../models/models");
 
 const generateJwt = (id, email, role) => {
-    return jwt.sign(
-        {id, email, role},
-        process.env.SECRET_KEY,
-        {expiresIn: '24h'}
-    )
-}
+  return jwt.sign({ id, email, role }, process.env.SECRET_KEY, {
+    expiresIn: "24h",
+  });
+};
 
 class UserController {
-    async registration(req, res, next) {
-        const {email, password, role} = req.body
-        if (!email || !password) {
-            return next(ApiError.badRequest('Некорректный email или password'))
-        }
-        const candidate = await User.findOne({where: {email}})
-        if (candidate) {
-            return next(ApiError.badRequest('Пользователь с таким email уже существует'))
-        }
-        const hashPassword = await bcrypt.hash(password, 5)
-        const user = await User.create({email, role, password: hashPassword})
-        // const basket = await Basket.create({userId: user.id})
-        const token = generateJwt(user.id, user.email, user.role)
-        return res.json({token})
+  async registration(req, res, next) {
+    const { email, password, role } = req.body;
+    if (!email || !password) {
+      return next(ApiError.badRequest("Некорректный email или password"));
     }
-
-    async login(req, res, next) {
-      console.log('login')
-        const {email, password} = req.body
-        const user = await User.findOne({where: {email}})
-        if (!user) {
-            return next(ApiError.internal('Пользователь не найден'))
-        }
-        let comparePassword = bcrypt.compareSync(password, user.password)
-        if (!comparePassword) {
-            return next(ApiError.internal('Указан неверный пароль'))
-        }
-        const token = generateJwt(user.id, user.email, user.role)
-        return res.json({token})
+    const candidate = await User.findOne({ where: { email } });
+    if (candidate) {
+      return next(
+        ApiError.badRequest("Пользователь с таким email уже существует")
+      );
     }
+    const hashPassword = await bcrypt.hash(password, 5);
+    const user = await User.create({ email, role, password: hashPassword });
+    // const basket = await Basket.create({userId: user.id})
+    const token = generateJwt(user.id, user.email, user.role);
+    return res.json({ token });
+  }
 
-    async check(req, res, next) {
-      console.log('check')
-        const token = generateJwt(req.user.id, req.user.email, req.user.role)
-        return res.json({token})
+  async login(req, res, next) {
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return next(ApiError.internal("Пользователь не найден"));
     }
+    let comparePassword = bcrypt.compareSync(password, user.password);
+    if (!comparePassword) {
+      return next(ApiError.internal("Указан неверный пароль"));
+    }
+    const token = generateJwt(user.id, user.email, user.role);
+    return res.json({ token });
+  }
 
-    async getAll(req, res) {
+  async check(req, res, next) {
+    const token = generateJwt(req.user.id, req.user.email, req.user.role);
+    return res.json({ token });
+  }
 
-        try {
-          const users = await User.findAll();
-          return res.json(users);
-      } catch(e) {
-          console.log(e);
-      }
-      }
+  async getAll(req, res) {
+    try {
+      const users = await User.findAll();
+      return res.json(users);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
-      async updateOne(req, res, next) {
-        let {role} = req.body;
-        const {id} = req.params;
-        console.log(req.body);
-        console.log(id);
-        try {
-          const user = await User.update({
-            role
-          }, {
-            where: {id}
-          });
-          return res.json(user);
-        } catch(e) {
-          next(ApiError.badRequest(e.message));
+  async updateOne(req, res, next) {
+    let { role } = req.body;
+    const { id } = req.params;
+    try {
+      const user = await User.update(
+        {
+          role,
+        },
+        {
+          where: { id },
         }
-        
-      }
+      );
+      return res.json(user);
+    } catch (e) {
+      next(ApiError.badRequest(e.message));
+    }
+  }
 
-      async deleteOne(req, res) {
-        const {id} = req.params;
-        await User.destroy(
-          {
-            where: {id}
-          }
-        )
-      }
+  async deleteOne(req, res) {
+    const { id } = req.params;
+    await User.destroy({
+      where: { id },
+    });
+  }
 }
 
-
-module.exports = new UserController()
+module.exports = new UserController();

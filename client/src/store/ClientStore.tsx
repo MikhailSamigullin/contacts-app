@@ -1,4 +1,4 @@
-import {makeAutoObservable} from "mobx";
+import { makeAutoObservable } from "mobx";
 
 export default class ClientStore {
   _clients: any;
@@ -6,11 +6,11 @@ export default class ClientStore {
   _totalCount: number;
   _limit: number;
   constructor() {
-    this._clients = []
-    this._page = 1
-    this._totalCount = 0
-    this._limit = 1000
-    makeAutoObservable(this)
+    this._clients = [];
+    this._page = 1;
+    this._totalCount = 0;
+    this._limit = 1000;
+    makeAutoObservable(this);
   }
 
   setClients(clients: any) {
@@ -29,7 +29,6 @@ export default class ClientStore {
     this._totalCount = count;
   }
 
-  
   get clients() {
     return this._clients;
   }
@@ -42,5 +41,4 @@ export default class ClientStore {
   get limit() {
     return this._limit;
   }
-
 }
